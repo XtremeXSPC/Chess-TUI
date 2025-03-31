@@ -1,0 +1,66 @@
+name: Continuous Integration (CI)
+
+on:
+  pull_request:
+    paths:
+      - "scacchi/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - ".github/workflows/**"
+  workflow_call:
+
+jobs:
+  static-analysis-and-testing:
+    name: Static Analysis and Testing
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check-out the project repository, so this workflow can access it.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+        # Install the uv Python package manager
+        # It leverages uv's cache to make runs faster;
+        # the chache is invalidated when uv.lock changes
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+        # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install the dev dependencies of the project
+        run: uv sync --dev
+
+      - name: Run static type checking with Mypy
+        run: |
+          echo "### mypy results" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          uv run mypy . >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Run static analysis with Ruff
+        run: |
+          echo "### Ruff results" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          uv run ruff check >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Run static analysis with Bandit
+        run: |
+          echo "### Bandit results" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          uv run bandit -r scacchi >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Run testing with Pytest
+        run: |
+          echo "### pytest results" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          uv run pytest -v --cov=scacchi --cov-report term tests/ >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
