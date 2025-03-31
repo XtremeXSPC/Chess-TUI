@@ -32,7 +32,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version-file: ".python-version"
+          python-version: '3.13'
 
       - name: Install the dev dependencies of the project
         run: uv sync --dev
