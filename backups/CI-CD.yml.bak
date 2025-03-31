@@ -46,12 +46,6 @@ jobs:
           IMAGE_TAG=$(echo "$IMAGE_TAG" | tr "[:upper:]" "[:lower:]")
           echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Debug info
-        run: |
-            echo "Repository: ${{ github.repository }}"
-            echo "Owner: ${{ github.repository_owner }}"
-            echo "Token permissions available: yes" 
-
       - name: Build and push multi-arch Docker image
         uses: docker/build-push-action@v6
         with:
