@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Guida alla configurazione del repository - Scacchi</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Guida alla configurazione del repository";
+        var mkdocs_page_input_path = "Guida configurazione repo.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Scacchi
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="" href="../index.md">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="" href="../manuale_uso.md">Manuale d'uso</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="" href="../reference.md">Reference</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="" href="../crediti.md">Crediti</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Scacchi</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Guida alla configurazione del repository</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="guida-alla-configurazione-del-repository">Guida alla configurazione del repository</h1>
+<h2 id="indice">Indice</h2>
+<ul>
+<li>Accettazione assignment del primo componente e creazione repository su GitHub</li>
+<li>Accettazione assignment degli altri componenti e accesso al repository su GitHub</li>
+<li>Configurazione del repository su GitHub</li>
+<li>Impostazione del GitHub Secret</li>
+<li>Abilitazione package/immagini Docker</li>
+<li>Aggiunta del badge di GitHub Actions nel README</li>
+</ul>
+<h2 id="accettazione-assignment-del-primo-componente-e-creazione-repository-su-github">Accettazione assignment del primo componente e creazione repository su GitHub</h2>
+<p>Mettersi d'accordo su chi sarà il primo componente del gruppo che accetterà l'<em>assignment</em> su GitHub Classroom.</p>
+<p><strong>Le seguenti azioni sono di responsabilità del componente designato dal gruppo</strong>:</p>
+<ul>
+<li>Il componente designato dal gruppo dovrà scrivere sul canale <code>Formazione gruppi</code> di Teams un messaggio rivolto al docente (usare il <em>mention</em> con <em>@</em>) dichiarando che "il gruppo <em>x</em> è pronto" dove <em>x</em> è il nome del gruppo.</li>
+<li>Il docente risponderà inviando allo studente in chat privata il link di assegnazione del progetto.</li>
+<li>Cliccare sul link di assegnazione del progetto che il docente ha inviato in chat privata su Teams.</li>
+<li>
+<p>Scorrere la lista e cliccare sul proprio indirizzo di email
+  <img alt="joinClassroom" src="../img/joinClassroom.png" /></p>
+</li>
+<li>
+<p>Creare il team scrivendo il nome prescelto e cliccando sul pulsante verde <code>Create team</code>.</p>
+</li>
+<li>Aspettare che GitHub Classroom cloni il repository base per te.
+  <img alt="configuringRepository" src="../img/configuringRepository.png" /></li>
+<li>
+<p>*Fai un refresh della pagina web per verificare il completamento.
+  <img alt="readyToGo" src="../img/readyToGo.png" /></p>
+</li>
+<li>
+<p>Comunicare al docente in chat l'esito della creazione.</p>
+</li>
+<li>Comunicare agli altri componenti del gruppo il link di assegnazione del progetto precedentemente inviato dal docente.</li>
+</ul>
+<h2 id="accettazione-assignment-degli-altri-componenti-e-accesso-al-repository-su-github">Accettazione assignment degli altri componenti e accesso al repository su GitHub</h2>
+<p><strong>Le seguenti azioni sono di responsabilità di tutti i componenti tranne quello designato per la creazione del repository</strong>:</p>
+<ul>
+<li>Cliccare sul link di assegnazione del progetto ricevuto dal collega designato.</li>
+<li>
+<p>Scorrere la lista e cliccare sul proprio indirizzo di email
+  <img alt="joinClassroom" src="../img/joinClassroom.png" /></p>
+</li>
+<li>
+<p>Unisciti al tuo team cliccando il corrispondente pulsante <code>Join</code>
+   <img alt="joinTeam" src="../img/joinTeam.png" /></p>
+</li>
+</ul>
+<p><strong>Se non trovi il team è probabile che l'assignment sia stato accettato prima della creazione del team. Fermarsi e avvisare il componente designato dal gruppo.</strong></p>
+<ul>
+<li>
+<p>Se ti sei unito a un team già creato, dovrai prima confermare la scelta e quindi avrai subito la conferma.
+   <img alt="promptAcceptAssginment" src="../img/promptAcceptAssginment.png" /></p>
+</li>
+<li>
+<p>Questo passo terminerà con successo se tutti i componenti del gruppo potranno accedere al repository.</p>
+</li>
+</ul>
+<h2 id="configurazione-del-repository-su-github">Configurazione del repository su GitHub</h2>
+<p>Il repository che vi è stato assegnato contiene tutto il necessario per cominciare lo sviluppo della vostra applicazione. Oltre a una versione base del codice sorgente, esso presenta la struttura di directory alla quale dovrete attenervi durante lo svolgimento del progetto e i file di configurazione per i principali strumenti inclusi nella pipeline.</p>
+<p>In particolare, in <code>.github/workflows</code>, trovate due file di configurazione di GitHub Actions, denominati <code>gradle_build.yml</code> e <code>docker_build&amp;push.yml</code>. <a href="https://github.com/features/actions">Actions</a> è una funzionalità di GitHub che consente la definizione e l'esecuzione automatizzata di pipeline di Continuous Integration / Continuous Deployment (CI/CD). In GitHub Actions, i passaggi di una pipeline vengono specificati in un file <code>.yml</code>, detto <em>workflow</em>. Generalmente, le pipeline di CI/CD comprendono operazioni di testing, releasing e deployment di un sistema software. Nello specifico,
+per il vostro progetto sono state definite due pipeline.</p>
+<p>La prima pipeline, definita nel file <code>gradle_build.yml</code>, viene innescata da ogni Pull Request e realizza i seguenti passaggi:</p>
+<ol>
+<li>il testing del vostro codice (unit test con <a href="https://pypi.org/project/pytest/">Pytest</a>)</li>
+<li>l'analisi dello stesso con strumenti di quality assurance (<a href="https://checkstyle.org/">Checkstyle</a>, <a href="https://spotbugs.github.io">Spotbugs</a>);</li>
+</ol>
+<p>La seconda pipeline, definita nel file <code>docker_build&amp;push.yml</code>, viene innescata dalle operazioni di push e merge sul branch <code>main</code>; oltre a svolgere gli stessi passaggi effettuati dalla prima, effettua la costruzione di un'immagine Docker con la vostra applicazione e il caricamento della stessa su <a href="https://github.com/features/packages">GitHub Packages</a>. </p>
+<p>Affinché vada a buon fine, quest'ultimo passaggio necessita di un piccolo intervento da parte vostra, da svolgere soltanto una volta, nella fase di impostazione iniziale del progetto. Dal momento che ciascuna nuova esecuzione del workflow avviene in una macchina virtuale Ubuntu costruita ex-novo da GitHub Actions, è necessario che - ad ogni run - il processo preposto al caricamento dell'immagine Docker su Packages si autentichi al servizio (effettuando un login). Al posto della classica coppia di credenziali (username e password) è possibile usare, a questo scopo, un Personal Access Token (PAT) di GitHub, da passare in input al comando che effettua la connessione a Packages. Tuttavia, dal momento che tale comando viene riportato in chiaro nel file di workflow (<code>docker_build&amp;push.yml</code>), passare in input il token in modo esplicito significherebbe memorizzarne una copia che resti visibile a chiunque abbia accesso al repository; ciò non è affatto sicuro e andrebbe assolutamente evitato perché un token è strettamente personale. Per questo genere di esigenze, GitHub offre ai suoi utenti un'ulteriore funzionalità, i cosiddetti Secrets, valori crittografati associati ai repository e accessibili come variabili d'ambiente all'interno dei workflow. Una volta generato, il PAT può essere memorizzato in tutta sicurezza in un Secret. Al momento opportuno, il valore ivi contenuto verrà passato al comando di accesso a Packages che ne ha bisogno.</p>
+<p>L'intervento iniziale a voi richiesto deve essere svolto da <em>un solo membro del team</em> che dovrà:</p>
+<ul>
+<li>avere un Personal Access Token con un set minimale di scope che include <code>repo</code> (con tutte le relative sotto-voci) e <code>write:packages</code>;</li>
+</ul>
+<h2 id="impostazione-dei-github-secret">Impostazione dei GitHub Secret</h2>
+<p>A questo punto, il membro designato del team dovrà:</p>
+<ul>
+<li>recarsi sulla pagina principale del repository e fare click sull'icona <em>"Settings"</em> (ultima tab in alto a destra);
+  <strong>N.B.</strong>: solo l'amministratore visualizza questa tab!
+  <img alt="SaveTokenInSecret_5" src="../img/SaveTokenInSecret_5.png" /></li>
+<li>selezionare la voce <em>"Secrets and variables"</em>, quindi la sotto-voce <em>"Actions"</em> dalla barra laterale;
+  <img alt="SaveTokenInSecret_6" src="../img/SaveTokenInSecret_6.png" /></li>
+<li>fare click sul pulsante <em>"New repository secret"</em>:
+ <img alt="SaveTokenInSecret_6" src="../img/SaveTokenInSecret_7.png" /></li>
+<li>inserire la stringa <code>GH_ACCESS_TOKEN</code> nella textbox con l'etichetta <em>"Name"</em>;</li>
+<li>inserire il Personal Access Token precedentemente generato nella textarea con l'etichetta <em>"Secret"</em>;</li>
+<li>concludere l'operazione cliccando sul pulsante <em>"Add secret"</em>.</li>
+<li>ripetere l'operazione per l'aggiunta di un secret col proprio username: fare click sul link <em>"New repository secret"</em>;</li>
+<li>inserire la stringa <code>GH_USERNAME</code> nella textbox con l'etichetta <em>"Name"</em>;</li>
+<li>inserire il proprio username GitHub nella textarea con l'etichetta <em>"Secret"</em>;</li>
+<li>concludere l'operazione cliccando sul pulsante <em>"Add secret"</em>.</li>
+</ul>
+<p><strong>N.B.:</strong> È fondamentale che i nomi dei due GitHub Secret vengano scritti esattamente come sono riportati in questa guida: <code>GH_ACCESS_TOKEN</code> e <code>GH_USERNAME</code>(rispettando le maiuscole e gli underscore).</p>
+<h2 id="abilitazione-packageimmagini-docker">Abilitazione package/immagini Docker</h2>
+<p>Affinché tutti i membri del team possano visualizzare e scaricare l'immagine Docker del proprio progetto da GitHub Packages, è necessario che colui che ha inserito il proprio Personal Access Token tra i secret del repository svolga i seguenti passaggi:</p>
+<ol>
+<li>accedere al proprio repository su GitHub;</li>
+<li>cliccare sul link del package associato al repository; il link è collocato nella barra laterale destra della pagina principale del repository, sotto l'intestazione "Packages"
+(vedi freccia rossa in figura); <img alt="ExecuteDockerImage_1" src="../img/ExecuteDockerImage_1.png" />
+N.B.: il package sarà visibile solo dopo che GitHub Actions avrà completato con successo la prima build del progetto;</li>
+<li>cliccare sul link "Package settings", presente nella pagina dedicata al package come ultima voce nella barra laterale destra (vedi freccia rossa in figura); <img alt="ExecuteDockerImage_1" src="../img/packageSettings.png" /></li>
+<li>scorrere in basso, sino all'intestazione "Inherited access"; rimuovere la spunta dalla checkbox <em>"Inherit access from source repository (recommended)"</em> – questa operazione comporterà un ricaricamento automatico della pagina;</li>
+<li>dopo il ricaricamento della pagina, l'intestazione <em>"Inherited access"</em> viene sostituita dall'intestazione <em>"Manage access"</em>; a destra dell'intestazione compare inoltre il bottone <em>"Invite teams or people"</em>; fare click su tale bottone e aggiungere il proprio team alla lista dei membri, conferendo allo stesso i permessi di "Admin" (vedi freccia rossa in figura); <img alt="ExecuteDockerImage_1" src="../img/manageAccess.png" />.</li>
+</ol>
+<h2 id="aggiunta-del-badge-di-github-actions-nel-readme">Aggiunta del badge di GitHub Actions nel README</h2>
+<p>Per aggiungere il badge che riporta l'ultimo esito dell'esecuzione del workflow <code>docker_build&amp;push.yml</code> (stato del workflow) all'interno del file README del vostro repository, seguire le seguenti istruzioni:</p>
+<ul>
+<li>entrare nella pagina principale del repository e cliccare su <code>Actions</code> (subito sotto il titolo, in alto al centro);
+<img alt="Update_GitHub_badge_1" src="../img/Update_GitHub_badge_1.png" /></li>
+<li>la pagina <em>"All workflows"</em> sotto la tab <em>"Actions"</em>, riporta l'elenco delle esecuzioni (<em>run</em>) di tutti i workflow di GitHub Actions attivabili nel repository; per filtrarne il contenuto e visualizzare soltanto le esecuzioni relative al workflow <code>docker_build&amp;push.yml</code>, fare click sulla voce corrispondente nel pannello laterale a sinistra. (<strong>N.B.</strong>: all'inizio del progetto, è del tutto normale che queste liste siano vuote. I workflow si attiveranno per la prima volta quando modificherete il codice nella cartella <code>src/</code> ed effettuerete Pull Request o operazioni di push/merge sul branch <code>main</code>);</li>
+<li>Una volta selezionato il workflow <code>docker_build&amp;push.yml</code> dal pannello laterale, in alto a destra nella pagina – di fianco alla text box con la scritta "Filter workflow runs" – comparirà un nuovo bottone con tre puntini <code>•••</code>. Fare click su tale bottone e poi selezionare la voce "Create status badge" nel menù a tendina.</li>
+<li>Lasciando invariate le impostazioni di default (<code>branch</code> e <code>event</code>) nella finestra a comparsa, fare click su <code>Copy status badge Markdown</code>;
+  <img alt="Update_GitHub_badge_3" src="../img/Update_GitHub_badge_3.png" /></li>
+<li>La modifica del file Markdown <code>README.md</code> sarà fatta come parte dei task dello <em>Sprint 0</em> incollando il codice markdown per la costruzione del badge in cima al <code>README.md</code>, accanto al titolo del repository.</li>
+</ul>
+<p>Il titolo del README.md apparirà come nella seguente figura:</p>
+<p><img alt="actions-badge" src="../img/actions-badge.png" /></p>
+<p>Il colore e lo stato del badge potranno cambiare dopo ogni build, riflettendo lo stato del progetto.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
