@@ -42,10 +42,14 @@ jobs:
       - name: Define image tag
         id: define_img_tag
         run: |
-          TEAM_NAME="$(echo $GITHUB_REPOSITORY | cut -d'/' -f 2 | cut -d'-' -f 2)"
-          IMAGE_TAG=ghcr.io/${{ github.repository_owner }}/scacchi-${TEAM_NAME}
-          IMAGE_TAG=$(echo "$IMAGE_TAG" | tr "[:upper:]" "[:lower:]")
-          echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+            IMAGE_TAG=ghcr.io/${{ github.repository_owner }}/test-docker-app
+            echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Debug info
+        run: |
+            echo "Repository: ${{ github.repository }}"
+            echo "Owner: ${{ github.repository_owner }}"
+            echo "Token permissions available: yes" 
 
       - name: Build and push multi-arch Docker image
         uses: docker/build-push-action@v6
