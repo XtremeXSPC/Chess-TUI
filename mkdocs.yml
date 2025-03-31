@@ -1,0 +1,9 @@
+site_name: Scacchi
+theme: readthedocs
+plugins:
+  - mkdocstrings
+nav:
+  - Home: index.md
+  - Manuale d'uso: manuale_uso.md
+  - Reference: reference.md
+  - Crediti: crediti.md
