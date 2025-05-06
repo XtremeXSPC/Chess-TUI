@@ -1,13 +1,12 @@
 # ui.py
 """Gestisce l'interfaccia utente del gioco nel terminale."""
 
-from rich import print as rprint # Usa un alias per evitare conflitti con la funzione print standard
+from rich import print as rprint
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 from typing import List, Tuple, Optional
 
-# Assumiamo che 'constants.py', 'board.py', 'pieces.py' siano nello stesso pacchetto o PYTHONPATH
 from .constants import BOARD_SIZE, IDX_TO_COL, COMMANDS, Color
 from .board import Board
 from .pieces import Piece
@@ -17,27 +16,26 @@ class UI:
 
     def __init__(self):
         """Inizializza l'UI con impostazioni predefinite."""
-        self._accent_color: str = "blue" # Colore predefinito per evidenziazioni
-        self._white_square_color: str = "bright_white" # Colore per case bianche
-        self._black_square_color: str = "grey50" # Colore per case nere (usa un grigio)
-        self._white_piece_color: str = "white" # Colore pezzi bianchi
-        self._black_piece_color: str = "black" # Colore pezzi neri
+        self._accent_color: str = "blue"
+        self._white_square_color: str = "bright_white"
+        self._black_square_color: str = "grey50"
+        self._white_piece_color: str = "white"
+        self._black_piece_color: str = "black"
+        # Definiamo la larghezza delle celle dei pezzi per coerenza
+        self._cell_char_width = 5 # Esempio: "  P  " (2 spazi, 1 pezzo, 2 spazi)
 
     def set_accent_color(self, accent_color: str):
         """Imposta il colore di accento per l'UI."""
-        # (Codice esistente da main.py - validazione colore)
         RICH_COLORS: set[str] = {
             "black", "red", "green", "yellow", "blue", "magenta", "cyan", "white",
             "bright_black", "bright_red", "bright_green", "bright_yellow",
             "bright_blue", "bright_magenta", "bright_cyan", "bright_white",
-            "grey50", # Aggiunto per le case nere
+            "grey50",
         }
         if accent_color in RICH_COLORS:
             self._accent_color = accent_color
         else:
-            # Potremmo voler gestire l'errore in modo diverso qui, magari loggare e usare default
             rprint(f"[bold red]Errore:[/bold red] Colore '{accent_color}' non valido. Uso '{self._accent_color}'.")
-            # raise ValueError(f"Invalid accent color '{accent_color}'.") # Rimosso per non bloccare
 
     def get_accent_color(self) -> str:
         """Restituisce il colore di accento corrente."""
@@ -50,56 +48,99 @@ class UI:
 
     def get_player_name(self) -> str:
         """Chiede e restituisce il nome del giocatore."""
-        # Usiamo input standard, ma potremmo usare rich.prompt in futuro
         name = input("Inserisci il tuo nome: ")
         rprint(f"Ciao [bold {self._accent_color}]{name}[/bold {self._accent_color}]! "
                f"Usa [bold cyan]/help[/bold cyan] per vedere i comandi.")
-        return name # Anche se non lo usiamo subito, potrebbe servire
+        return name
 
     def display_board(self, board: Board, current_player: Optional[Color] = None):
         """
-        Mostra la scacchiera usando Rich, con colori per case e pezzi.
+        Mostra la scacchiera usando Rich, con layout migliorato.
+        - Spazio tra numeri di riga e scacchiera.
+        - Pezzi centrati verticalmente nelle celle (alte 2 "sotto-righe").
 
         Args:
             board (Board): L'oggetto scacchiera da visualizzare.
             current_player (Optional[Color]): Il giocatore di turno, per indicarlo.
         """
         table = Table.grid(expand=False)
-        # Aggiungi colonne per le lettere (a-h) in alto
-        table.add_row("", *[f"[dim]{IDX_TO_COL[c]}[/dim]" for c in range(BOARD_SIZE)])
 
-        for r in range(BOARD_SIZE - 1, -1, -1): # Itera dalla riga 7 alla 0 (visualizzazione da 8 a 1)
+        # Calcola il padding per centrare orizzontalmente il pezzo
+        # Se il pezzo è 1 carattere, e la cella è larga 5, servono 2 spazi per lato.
+        piece_padding_char = " "
+        padding_len = (self._cell_char_width - 1) // 2
+        side_padding = piece_padding_char * padding_len
+        # Assicura che la larghezza totale sia _cell_char_width, anche se il pezzo fosse più largo (non previsto qui)
+        # o se _cell_char_width è pari.
+        # Per larghezza 5 e pezzo 1: "  P  " -> side_padding = "  "
+        # Per larghezza 4 e pezzo 1: " P " -> side_padding = " " (padding_len = 1), un lato avrà uno spazio in più se necessario.
+        # Semplifichiamo: assumiamo che il pezzo sia sempre 1 carattere.
+        
+        # Linea vuota per la parte superiore/inferiore della cella, con la larghezza definita
+        empty_cell_line = piece_padding_char * self._cell_char_width
+
+        # Intestazioni colonne (a-h)
+        # Ogni intestazione è larga _cell_char_width e alta 2 "sotto-righe"
+        column_headers = [
+            Text(f"{side_padding}{IDX_TO_COL[c]}{side_padding}\n{empty_cell_line}", style="dim")
+            for c in range(BOARD_SIZE)
+        ]
+        
+        # Angolo superiore sinistro (per etichette riga) - larghezza 2, altezza 2 "sotto-righe"
+        top_left_corner = Text("  \n  ", style="dim")
+        # Intestazione per la colonna di separazione - larghezza 2, altezza 2 "sotto-righe"
+        separator_header = Text("  \n  ", style="dim")
+
+        table.add_row(top_left_corner, separator_header, *column_headers)
+
+        for r in range(BOARD_SIZE - 1, -1, -1): # Itera dalla riga 7 alla 0
             row_cells = []
             for c in range(BOARD_SIZE):
                 piece = board.get_piece((r, c))
-                is_white_square = (r + c) % 2 != 0 # Determina il colore della casa
+                is_white_square = (r + c) % 2 != 0
 
                 square_bg_color = self._white_square_color if is_white_square else self._black_square_color
-                piece_symbol = " " # Spazio per case vuote
-                piece_style = ""
-
-                if piece:
-                    piece_symbol = piece.get_symbol()
-                    piece_color = self._white_piece_color if piece.color == Color.WHITE else self._black_piece_color
-                    # Assicurati che il colore del pezzo sia leggibile sullo sfondo della casa
-                    # Rich gestisce questo abbastanza bene, ma potremmo aggiungere logica se necessario
-                    piece_style = f"bold {piece_color} on {square_bg_color}"
-                else:
-                    # Per case vuote, usa solo il colore di sfondo
+                piece_symbol_display = piece.get_symbol() if piece else " "
+                
+                piece_style = f"bold {self._white_piece_color if piece and piece.color == Color.WHITE else self._black_piece_color} on {square_bg_color}"
+                if not piece: # Stile per case vuote, solo sfondo
                     piece_style = f"on {square_bg_color}"
 
-                # Aggiungi uno spazio prima e dopo il simbolo per padding
-                cell_content = Text(f" {piece_symbol} ", style=piece_style)
+                # Costruzione della cella (alta 2 "sotto-righe", larga _cell_char_width)
+                # Pezzo nella seconda "sotto-riga" per migliore centratura verticale
+                line_with_piece  = f"{side_padding}{piece_symbol_display}{side_padding}"
+                # Aggiusta la lunghezza se _cell_char_width è dispari e side_padding*2 + 1 non fa _cell_char_width
+                # Questo assicura che la linea con il pezzo abbia la larghezza corretta
+                if len(line_with_piece) < self._cell_char_width:
+                    line_with_piece += piece_padding_char * (self._cell_char_width - len(line_with_piece))
+
+
+                cell_text_content = f"{empty_cell_line}\n{line_with_piece}"
+                
+                cell_content = Text(cell_text_content, style=piece_style)
                 row_cells.append(cell_content)
 
-            # Aggiungi il numero di riga all'inizio
-            table.add_row(f"[dim]{r + 1}[/dim]", *row_cells)
+            # Etichetta riga (numero) - es. "8 ", larga 2 caratteri, alta 2 "sotto-righe"
+            row_label_text = f"{r + 1:<2}" # Allinea a sinistra, padding con spazi se < 2 cifre
+            row_label = Text(f"{row_label_text}\n  ", style="dim")
+            
+            # Cella di separazione per questa riga (tra numero e scacchiera)
+            # Larga 2 caratteri, alta 2 "sotto-righe"
+            separator_cell = Text("  \n  ", style=f"on {self._black_square_color if (r % 2 == 0) else self._white_square_color}")
+            # Per rendere la colonna di separazione meno invadente, potremmo darle uno sfondo neutro
+            # o provare a farla "trasparente" (difficile con Table.grid).
+            # Per ora, le do uno sfondo alternato come se fosse parte della scacchiera,
+            # oppure uno sfondo fisso:
+            separator_cell = Text("  \n  ") # Sfondo di default del terminale
+
+            table.add_row(row_label, separator_cell, *row_cells)
 
         title = "Scacchiera"
         if current_player:
             title += f" - Tocca al [bold {current_player.value}]{current_player.name}[/bold {current_player.value}]"
+        
+        rprint(Panel(table, title=title, border_style=self._accent_color, padding=(0,0))) # Padding del panel a 0
 
-        rprint(Panel(table, title=title, border_style=self._accent_color, padding=(0, 1)))
 
     def display_help(self):
         """Mostra l'elenco dei comandi disponibili."""
@@ -110,71 +151,37 @@ class UI:
         rprint(Panel(help_text, title="Aiuto", border_style="cyan"))
 
     def display_message(self, message: str, level: str = "info"):
-        """
-        Mostra un messaggio all'utente (info, errore, successo).
-
-        Args:
-            message (str): Il testo del messaggio.
-            level (str): Il tipo di messaggio ('info', 'error', 'warning', 'success').
-        """
+        """Mostra un messaggio all'utente."""
         color_map = {
-            "info": self._accent_color,
-            "error": "red",
-            "warning": "yellow",
-            "success": "green",
+            "info": self._accent_color, "error": "red",
+            "warning": "yellow", "success": "green",
         }
         color = color_map.get(level, "white")
         prefix = f"[{level.capitalize()}]: " if level != "info" else ""
         rprint(f"[bold {color}]{prefix}{message}[/bold {color}]")
 
     def get_confirmation(self, prompt: str) -> bool:
-        """
-        Chiede conferma all'utente (sì/no).
-
-        Args:
-            prompt (str): La domanda da porre.
-
-        Returns:
-            bool: True se l'utente conferma, False altrimenti.
-        """
+        """Chiede conferma all'utente (sì/no)."""
         while True:
             response = input(f"{prompt} (s/n): ").lower().strip()
-            if response == 's':
-                return True
-            if response == 'n':
-                return False
+            if response == 's': return True
+            if response == 'n': return False
             self.display_message("Risposta non valida. Per favore inserisci 's' o 'n'.", level="warning")
 
     def display_moves(self, move_history: List[str]):
-         """
-         Mostra la cronologia delle mosse.
-
-         Args:
-             move_history (List[str]): Lista delle mosse in notazione algebrica.
-         """
+         """Mostra la cronologia delle mosse."""
          if not move_history:
              self.display_message("Nessuna mossa è stata ancora giocata.", level="info")
              return
-
          move_text = "[bold]Cronologia Mosse:[/bold]\n\n"
          move_number = 1
          for i in range(0, len(move_history), 2):
              white_move = move_history[i]
              black_move = move_history[i+1] if (i+1) < len(move_history) else ""
-             move_text += f"{move_number}. {white_move:<6} {black_move}\n" # Allinea le mosse
+             move_text += f"{move_number}. {white_move:<6} {black_move}\n"
              move_number += 1
-
          rprint(Panel(move_text, title="Mosse Giocate", border_style=self._accent_color))
 
     def get_user_input(self, prompt: str = "Inserisci comando o mossa") -> str:
-        """
-        Ottiene l'input dall'utente.
-
-        Args:
-            prompt (str): Il messaggio da mostrare all'utente.
-
-        Returns:
-            str: L'input dell'utente ripulito.
-        """
+        """Ottiene l'input dall'utente."""
         return input(f"{prompt}: ").strip()
-

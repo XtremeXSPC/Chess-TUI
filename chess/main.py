@@ -4,19 +4,10 @@
 import sys
 import argparse
 
-# Assumiamo che le classi siano definite nei moduli corrispondenti
-# all'interno dello stesso pacchetto (es. 'scacchi')
-try:
-    from .ui import UI
-    from .game import Game
-    from .constants import COMMANDS # Importa COMMANDS per l'help da argomento
-except ImportError:
-    # Fallback se eseguito come script singolo (meno probabile con la struttura a pacchetto)
-    print("Errore: Assicurati che il gioco sia installato o eseguito come modulo (es. python -m scacchi).")
-    print("Importazione fallback dei moduli locali...")
-    from ui import UI
-    from game import Game
-    from constants import COMMANDS
+# Importazioni relative, assumeranno che il gioco sia eseguito come modulo
+from .ui import UI
+from .game import Game
+from .constants import COMMANDS # Importa COMMANDS per l'help da argomento
 
 
 def display_help_from_args():
@@ -26,46 +17,40 @@ def display_help_from_args():
     for command, description in COMMANDS.items():
         print(f"  {command:<15} {description}")
     print("\nUsa la notazione algebrica standard (es. 'e4') per le mosse durante il gioco.")
+    print("\nPer eseguire il gioco, naviga nella directory che contiene la cartella 'chess' e usa:")
+    print("  python -m chess")
+    print("Oppure:")
+    print("  python -m chess.main")
 
-def main():
+
+def run_game():
     """Avvia e gestisce il gioco degli scacchi."""
 
     parser = argparse.ArgumentParser(description="Scacchi Terminal Edition", add_help=False)
-    parser.add_argument('-h', '--help', action='store_true', help='Mostra questo messaggio di aiuto ed esci')
-    # Potremmo aggiungere altri argomenti qui in futuro (es. colori UI)
+    # Definiamo l'argomento help qui in modo che non entri in conflitto con l'help interno del gioco
+    parser.add_argument('-h', '--help-args', action='store_true', help='Mostra questo messaggio di aiuto ed esci (argomenti linea di comando).')
 
-    # Parsa solo gli argomenti conosciuti per permettere l'esecuzione senza argomenti
-    args, unknown = parser.parse_known_args()
+    args, _ = parser.parse_known_args()
 
-    if args.help:
+    if args.help_args:
         display_help_from_args()
-        sys.exit(0) # Esce dopo aver mostrato l'aiuto
+        sys.exit(0)
 
-    # Inizializza l'interfaccia utente e il gioco
     ui = UI()
-    # ui.set_accent_color("cyan") # Imposta un colore diverso se vuoi
-
     game = Game(ui)
 
-    # Avvia il loop principale del gioco
     try:
-        game.run()
+        game.run() # Il comando /help interno al gioco è gestito da game.run()
     except KeyboardInterrupt:
         ui.display_message("\nUscita forzata rilevata. Arrivederci!", level="warning")
     except Exception as e:
         ui.display_message(f"\nErrore inaspettato: {e}", level="error")
-        # Considera di loggare l'errore completo per il debug
-        # import traceback
-        # traceback.print_exc()
-    finally:
-        # Codice di pulizia eventuale
-        pass
+        import traceback
+        traceback.print_exc() # Utile per il debug
 
-
+# Questa funzione 'main' è quella che verrà chiamata da __main__.py
+# o se si esegue specificamente `python -m chess.main`
 if __name__ == "__main__":
-    # Questo blocco viene eseguito se main.py è lanciato direttamente come script.
-    # Per una struttura a pacchetto, l'esecuzione tipica sarebbe `python -m scacchi`
-    # che eseguirebbe __main__.py (se esiste) o importerebbe il pacchetto.
-    # Manteniamo questo per compatibilità e test diretti.
-    main()
-
+    # Questo blocco viene eseguito se main.py è lanciato con `python -m chess.main`.
+    # Se viene eseguito direttamente come `python chess/main.py`, le importazioni relative falliranno prima.
+    run_game()

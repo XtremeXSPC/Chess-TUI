@@ -8,7 +8,7 @@ from .constants import Color, COMMANDS
 from .board import Board
 from .ui import UI
 from .utils import parse_move, coords_to_algebraic, algebraic_to_coords
-from .pieces import Piece # Import Piece per type hinting
+from .pieces import Piece, Pawn # << CORREZIONE: Aggiunto Pawn all'import a livello di modulo
 
 
 class Game:
@@ -61,23 +61,30 @@ class Game:
         """
         # TODO: Implementare la notazione algebrica completa (pezzo, cattura, scacco, etc.)
         # Per ora, per i pedoni, usiamo solo la casa di destinazione
-        if isinstance(piece, piece.Pawn): # Assicurati che piece.Pawn sia corretto (dovrebbe essere solo Pawn)
-             from .pieces import Pawn # Importa qui per evitare errore di riferimento
-             if isinstance(piece, Pawn):
-                 algebraic_move = coords_to_algebraic(end_pos)
-                 if algebraic_move:
-                     self.move_history.append(algebraic_move)
-                 else:
-                     # Fallback se la conversione fallisce (non dovrebbe accadere)
-                     self.move_history.append(f"{coords_to_algebraic(start_pos)}-{coords_to_algebraic(end_pos)}")
+
+        # << CORREZIONE: Modificato if isinstance(piece, piece.Pawn) in isinstance(piece, Pawn)
+        # e rimossa la logica di import locale e if annidato.
+        if isinstance(piece, Pawn):
+            algebraic_move = coords_to_algebraic(end_pos)
+            if algebraic_move:
+                self.move_history.append(algebraic_move)
+            else:
+                # Fallback se la conversione fallisce (non dovrebbe accadere)
+                self.move_history.append(f"{coords_to_algebraic(start_pos)}-{coords_to_algebraic(end_pos)}")
         else:
-             # Per altri pezzi (non nello sprint 1), faremo un placeholder
-             start_alg = coords_to_algebraic(start_pos)
-             end_alg = coords_to_algebraic(end_pos)
-             if start_alg and end_alg:
-                 self.move_history.append(f"{piece.get_symbol()}{start_alg}-{end_alg}") # Placeholder
-             else:
-                 self.move_history.append("Mossa Sconosciuta")
+            # Per altri pezzi (non nello sprint 1), faremo un placeholder
+            # Questa è una semplificazione. La notazione corretta sarebbe Pezzo[x]Destinazione
+            # es. Cf3, Cxf3, Ag5. Per ora usiamo SimboloInizio-Fine.
+            start_alg = coords_to_algebraic(start_pos)
+            end_alg = coords_to_algebraic(end_pos)
+            if start_alg and end_alg:
+                # Potremmo migliorare la notazione qui in futuro
+                # Per ora, usiamo il simbolo del pezzo per distinguerlo dai pedoni
+                # e indichiamo la cattura se presente.
+                capture_indicator = "x" if captured_piece else "-"
+                self.move_history.append(f"{piece.get_symbol()}{start_alg}{capture_indicator}{end_alg}")
+            else:
+                self.move_history.append("Mossa Sconosciuta")
 
 
     def make_move(self, move_string: str) -> bool:
@@ -94,12 +101,10 @@ class Game:
             self.ui.display_message("La partita non è attiva. Usa /gioca per iniziare.", level="warning")
             return False
 
-        # 1. Parse della mossa: Traduce "e4" in ((start_row, start_col), (end_row, end_col))
         parsed_coords = parse_move(move_string, self.board, self.current_player)
 
         if parsed_coords is None:
-            # Prova a vedere se è una notazione completa tipo "e2e4"
-            if len(move_string) == 4:
+            if len(move_string) == 4 and all(c.isalnum() for c in move_string): # es. e2e4
                 start_alg = move_string[:2]
                 end_alg = move_string[2:]
                 start_coords_direct = algebraic_to_coords(start_alg)
@@ -113,10 +118,7 @@ class Game:
                  self.ui.display_message(f"Mossa '{move_string}' non valida o non riconosciuta.", level="error")
                  return False
 
-
         start_pos, end_pos = parsed_coords
-
-        # 2. Validazione: Controlla se il pezzo esiste e appartiene al giocatore corrente
         piece_to_move = self.board.get_piece(start_pos)
 
         if piece_to_move is None:
@@ -127,53 +129,40 @@ class Game:
             self.ui.display_message(f"Non è il tuo turno di muovere il pezzo in {coords_to_algebraic(start_pos)}.", level="error")
             return False
 
-        # 3. Validazione specifica del pezzo: Chiede al pezzo se la mossa è valida
-        # Nota: get_valid_moves per Pawn (Sprint 1) non include catture.
-        # Dobbiamo assicurarci che la mossa richiesta sia tra quelle calcolate.
-        # In futuro, parse_move dovrebbe gestire meglio la distinzione tra mosse e catture.
         valid_moves_for_piece = piece_to_move.get_valid_moves(self.board)
+        target_piece = self.board.get_piece(end_pos) # Pezzo nella casa di destinazione
 
-        # Controlla anche le mosse di cattura (anche se non implementate in get_valid_moves di Pawn)
-        # Questo è un workaround per lo sprint 1 dove la specifica menziona solo movimento
-        is_capture = self.board.get_piece(end_pos) is not None
-        target_piece = self.board.get_piece(end_pos)
-
-        # Controlli specifici per il pedone (Sprint 1 - solo movimento)
-        from .pieces import Pawn
+        # << CORREZIONE: Rimossa l'importazione locale 'from .pieces import Pawn'
+        # perché Pawn è ora importato a livello di modulo.
         if isinstance(piece_to_move, Pawn):
-            if is_capture:
+            # Per i pedoni, Sprint 1: solo movimento, no catture.
+            # get_valid_moves per Pawn attualmente restituisce solo mosse di avanzamento.
+            if target_piece is not None: # C'è un pezzo nella casa di destinazione
                  self.ui.display_message("La cattura con i pedoni non è implementata in questo sprint.", level="error")
                  return False
             if end_pos not in valid_moves_for_piece:
                  self.ui.display_message(f"Mossa non valida per il pedone da {coords_to_algebraic(start_pos)} a {coords_to_algebraic(end_pos)}.", level="error")
                  return False
         else:
-            # Per altri pezzi (non nello sprint 1), assumiamo per ora che se parse_move l'ha data, è ok
-            # TODO: Implementare validazione completa per tutti i pezzi
-             self.ui.display_message("Solo le mosse dei pedoni sono implementate in questo sprint.", level="error")
-             return False
+            # Per altri pezzi (non nello sprint 1)
+            # TODO: Implementare validazione completa e logica di cattura per altri pezzi
+            self.ui.display_message("Solo le mosse dei pedoni sono implementate in questo sprint.", level="error")
+            return False
 
-
-        # 4. Esecuzione della mossa sulla scacchiera
         try:
             captured_piece = self.board.move_piece(start_pos, end_pos)
-            # Nota: Nello sprint 1, captured_piece dovrebbe essere sempre None per i pedoni
-            if captured_piece:
+            if captured_piece: # Dovrebbe essere None per i pedoni in Sprint 1
                  self.ui.display_message(f"Pezzo catturato: {captured_piece.get_symbol()} a {coords_to_algebraic(end_pos)}", level="info")
-
         except ValueError as e:
-            # Questo errore non dovrebbe accadere se i controlli precedenti sono corretti
             self.ui.display_message(f"Errore durante l'esecuzione della mossa: {e}", level="error")
             return False
 
-        # 5. Aggiornamento stato del gioco
         self._add_move_to_history(start_pos, end_pos, piece_to_move, captured_piece)
         self._switch_player()
-        self.ui.display_board(self.board, self.current_player) # Mostra la scacchiera aggiornata
+        self.ui.display_board(self.board, self.current_player)
 
         # TODO: Controllare scacco, scacco matto, stallo
         # self._check_game_end_conditions()
-
         return True
 
     def handle_command(self, command: str):
@@ -199,7 +188,9 @@ class Game:
         elif command == "/mosse":
             self.ui.display_moves(self.move_history)
         elif command == "/esci":
-            self._handle_exit()
+            # _handle_exit() restituirà True se l'utente conferma l'uscita.
+            # Questa logica è gestita nel loop run().
+            pass # Il comando /esci è gestito specificamente nel loop run
         else:
             self.ui.display_message(f"Comando '{command}' sconosciuto. Usa /help per la lista.", level="error")
 
@@ -225,7 +216,6 @@ class Game:
         opponent_color = Color.BLACK if self.current_player == Color.WHITE else Color.WHITE
         self.ui.display_message(f"Il giocatore {self.current_player.name} propone la patta.", level="info")
 
-        # In un gioco a terminale 1vs1 sulla stessa macchina, la conferma è immediata
         if self.ui.get_confirmation(f"Giocatore {opponent_color.name}, accetti la patta?"):
             self.game_over = True
             self.winner = None # Patta
@@ -233,37 +223,36 @@ class Game:
         else:
             self.ui.display_message("Proposta di patta rifiutata. Il gioco continua.", level="info")
 
-    def _handle_exit(self):
-        """Gestisce il comando /esci."""
+    def _handle_exit(self) -> bool:
+        """
+        Gestisce il comando /esci e restituisce True se si deve uscire.
+        """
         if self.ui.get_confirmation("Sei sicuro di voler uscire dal gioco?"):
             self.ui.display_message("Grazie per aver giocato a Scacchi! Arrivederci.", level="info")
-            # Non impostiamo game_over qui, perché vogliamo che il loop principale termini
-            return True # Segnala al loop principale di uscire
+            return True
         else:
             self.ui.display_message("Uscita annullata.", level="info")
-            return False # Segnala al loop principale di continuare
+            return False
 
     def run(self):
         """Avvia il loop principale del gioco."""
         self.ui.display_welcome_message()
-        # self.ui.get_player_name() # Chiede il nome, ma non lo usiamo attivamente per ora
 
         should_exit = False
         while not should_exit:
             prompt = f"{self.current_player.name} > " if self.game_started and not self.game_over else "> "
             user_input = self.ui.get_user_input(prompt)
 
-            if not user_input: # Ignora input vuoto
+            if not user_input:
                 continue
 
             if user_input.startswith('/'):
-                command = user_input.split()[0] # Prende solo il comando, ignora eventuali argomenti per ora
+                command = user_input.split()[0]
                 if command == "/esci":
                     should_exit = self._handle_exit()
                 else:
                     self.handle_command(command)
             elif self.game_started and not self.game_over:
-                # Se non è un comando e il gioco è attivo, prova a interpretarlo come una mossa
                 self.make_move(user_input)
             elif not self.game_started:
                  self.ui.display_message("Nessuna partita in corso. Usa /gioca per iniziare o /help per i comandi.", level="info")
