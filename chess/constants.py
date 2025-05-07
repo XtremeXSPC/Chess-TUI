@@ -8,22 +8,14 @@ class Color(Enum):
     WHITE = "white"
     BLACK = "black"
 
-# Simboli Unicode per i pezzi (iniziamo con i pedoni)
-# Potremmo usare lettere (P, N, B, R, Q, K) se Unicode non è supportato ovunque
+# Simboli Unicode per i pezzi
 PIECE_SYMBOLS = {
-    (Color.WHITE, 'Pawn'): "♙",
-    (Color.BLACK, 'Pawn'): "♟",
-    # Aggiungere altri pezzi qui...
-    (Color.WHITE, 'Rook'): "♖",
-    (Color.BLACK, 'Rook'): "♜",
-    (Color.WHITE, 'Knight'): "♘",
-    (Color.BLACK, 'Knight'): "♞",
-    (Color.WHITE, 'Bishop'): "♗",
-    (Color.BLACK, 'Bishop'): "♝",
-    (Color.WHITE, 'Queen'): "♕",
-    (Color.BLACK, 'Queen'): "♛",
-    (Color.WHITE, 'King'): "♔",
-    (Color.BLACK, 'King'): "♚",
+    (Color.WHITE, 'Pawn'): "♙", (Color.BLACK, 'Pawn'): "♟",
+    (Color.WHITE, 'Rook'): "♖", (Color.BLACK, 'Rook'): "♜",
+    (Color.WHITE, 'Knight'): "♘", (Color.BLACK, 'Knight'): "♞",
+    (Color.WHITE, 'Bishop'): "♗", (Color.BLACK, 'Bishop'): "♝",
+    (Color.WHITE, 'Queen'): "♕", (Color.BLACK, 'Queen'): "♛",
+    (Color.WHITE, 'King'): "♔", (Color.BLACK, 'King'): "♚",
 }
 
 # Mappatura colonne notazione algebrica -> indice numerico (0-7)
@@ -43,4 +35,13 @@ COMMANDS = {
     "/patta": "Proponi una patta all'avversario.",
     "/mosse": "Mostra l'elenco delle mosse giocate.",
     "/esci": "Esci dal gioco.",
+}
+
+# Usato da UI.set_accent_color per validare i colori
+RICH_COLORS: set[str] = {
+    "black", "red", "green", "yellow", "blue", "magenta", "cyan", "white",
+    "bright_black", "bright_red", "bright_green", "bright_yellow",
+    "bright_blue", "bright_magenta", "bright_cyan", "bright_white",
+    "grey50", # Esempio di altro colore supportato da Rich
+    # Aggiungere altri colori di Rich se necessario
 }

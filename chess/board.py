@@ -3,24 +3,21 @@
 
 from typing import List, Tuple, Optional, Dict
 
-# Assumiamo che 'constants.py' e 'pieces.py' siano nello stesso pacchetto o PYTHONPATH
-from .constants import Color, BOARD_SIZE, IDX_TO_COL, COL_TO_IDX
-from .pieces import Piece, Pawn, Rook, Knight, Bishop, Queen, King # Importa tutte le classi pezzo
+from .constants import Color, BOARD_SIZE, IDX_TO_COL
+from .pieces import Piece, Pawn, Rook, Knight, Bishop, Queen, King
 
 
 class Board:
     """Rappresenta la scacchiera e gestisce i pezzi."""
 
     def __init__(self):
-        """Inizializza una scacchiera vuota."""
-        # Usiamo un dizionario per memorizzare i pezzi: chiave = (riga, colonna), valore = Oggetto Piece
-        # Questo è efficiente per cercare un pezzo in una data posizione.
+        """Inizializza una scacchiera e imposta i pezzi nella posizione iniziale."""
         self._grid: Dict[Tuple[int, int], Piece] = {}
-        self.setup_pieces() # Imposta i pezzi nella posizione iniziale
+        self.setup_pieces()
 
     def setup_pieces(self):
         """Dispone i pezzi sulla scacchiera nella configurazione iniziale."""
-        self._grid = {} # Pulisce la scacchiera prima di aggiungere i pezzi
+        self._grid = {}  # Pulisce la scacchiera prima di aggiungere i pezzi
 
         # Pedoni
         for col in range(BOARD_SIZE):
@@ -52,10 +49,10 @@ class Board:
         Restituisce il pezzo alla posizione specificata.
 
         Args:
-            position (Tuple[int, int]): La posizione (riga, colonna) da controllare.
+            position: La posizione (riga, colonna) da controllare.
 
         Returns:
-            Optional[Piece]: L'oggetto Piece se presente, altrimenti None.
+            L'oggetto Piece se presente, altrimenti None.
         """
         return self._grid.get(position)
 
@@ -67,11 +64,11 @@ class Board:
         il pezzo catturato viene restituito.
 
         Args:
-            start_pos (Tuple[int, int]): Posizione di partenza (riga, colonna).
-            end_pos (Tuple[int, int]): Posizione di arrivo (riga, colonna).
+            start_pos: Posizione di partenza (riga, colonna).
+            end_pos: Posizione di arrivo (riga, colonna).
 
         Returns:
-            Optional[Piece]: Il pezzo catturato, se presente, altrimenti None.
+            Il pezzo catturato, se presente, altrimenti None.
 
         Raises:
             ValueError: Se non c'è un pezzo alla posizione di partenza.
@@ -80,26 +77,24 @@ class Board:
         if piece_to_move is None:
             raise ValueError(f"Nessun pezzo trovato alla posizione di partenza {start_pos}")
 
-        captured_piece = self.get_piece(end_pos) # Controlla se c'è un pezzo da catturare
+        captured_piece = self.get_piece(end_pos)
 
-        # Rimuove il pezzo dalla vecchia posizione
         del self._grid[start_pos]
 
-        # Aggiorna la posizione del pezzo e mettilo nella nuova posizione sulla griglia
         piece_to_move.position = end_pos
         self._grid[end_pos] = piece_to_move
 
-        return captured_piece # Restituisce il pezzo catturato (o None)
+        return captured_piece
 
     def is_within_bounds(self, position: Tuple[int, int]) -> bool:
         """
         Controlla se una posizione è all'interno dei limiti della scacchiera.
 
         Args:
-            position (Tuple[int, int]): La posizione (riga, colonna) da controllare.
+            position: La posizione (riga, colonna) da controllare.
 
         Returns:
-            bool: True se la posizione è valida, False altrimenti.
+            True se la posizione è valida, False altrimenti.
         """
         row, col = position
         return 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE
@@ -114,14 +109,13 @@ class Board:
 
     def __str__(self) -> str:
         """Restituisce una rappresentazione testuale semplice della scacchiera (per debug)."""
-        board_str = ""
-        for r in range(BOARD_SIZE - 1, -1, -1): # Stampa dalla riga 8 alla 1
-            row_str = f"{r + 1} "
+        board_str_list = []
+        for r in range(BOARD_SIZE - 1, -1, -1):  # Stampa dalla riga 8 alla 1
+            row_items = [f"{r + 1} "]
             for c in range(BOARD_SIZE):
                 piece = self.get_piece((r, c))
-                row_str += f" {piece.get_symbol() if piece else '.'} "
-            board_str += row_str + "\n"
+                row_items.append(f" {piece.get_symbol() if piece else '.'} ")
+            board_str_list.append("".join(row_items))
         # Aggiunge le lettere delle colonne in basso
-        board_str += "   " + "  ".join([IDX_TO_COL[c] for c in range(BOARD_SIZE)]) + "\n"
-        return board_str
-
+        board_str_list.append("   " + "  ".join([IDX_TO_COL[c] for c in range(BOARD_SIZE)]))
+        return "\n".join(board_str_list)
