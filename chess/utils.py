@@ -4,7 +4,7 @@
 from typing import Tuple, Optional, List
 
 from .constants import COL_TO_IDX, IDX_TO_COL, BOARD_SIZE, Color
-from .pieces import Piece, Pawn
+from .pieces import Pawn
 from .board import Board
 
 

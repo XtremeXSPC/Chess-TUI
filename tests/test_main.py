@@ -1,6 +1,5 @@
 import os
 import sys
-import pytest
 
 # Add the project root directory to the Python path
 # Assumendo che test_main.py sia in una sottocartella 'tests'
@@ -9,6 +8,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from chess.ui import UI
 from chess.constants import RICH_COLORS # Import per testare i colori validi
+
+from chess.board import Board
+from chess.constants import Color
+from chess.pieces import Pawn
 
 # Test per la classe UI
 class TestUI:
@@ -69,18 +72,20 @@ class TestUI:
 # Potresti aggiungere altri test per altre parti del sistema qui,
 # ad esempio per `Board`, `Game` (con mock UI), `utils`, etc.
 # Esempio (molto basilare) per Board:
-from chess.board import Board
-from chess.constants import Color
-from chess.pieces import Pawn
 
 class TestBoard:
     def test_board_setup(self):
         board = Board()
         # Verifica qualche pezzo chiave
-        assert isinstance(board.get_piece((1,0)), Pawn) # Pedone bianco in a2
-        assert board.get_piece((1,0)).color == Color.WHITE
+        piece_at_a2 = board.get_piece((1,0))
+        piece_at_h7 = board.get_piece((6,7))
+        assert piece_at_a2 is not None
+        assert isinstance(piece_at_a2, Pawn) # Pedone bianco in a2
+        assert piece_at_a2.color == Color.WHITE
         assert isinstance(board.get_piece((6,7)), Pawn) # Pedone nero in h7
-        assert board.get_piece((6,7)).color == Color.BLACK
+        assert piece_at_h7 is not None
+        assert isinstance(piece_at_h7, Pawn)
+        assert piece_at_h7.color == Color.BLACK
         assert board.get_piece((3,3)) is None # Casa vuota d4
 
     def test_move_piece(self):

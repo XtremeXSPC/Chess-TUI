@@ -5,12 +5,11 @@ from rich import print as rprint
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from .constants import BOARD_SIZE, IDX_TO_COL, COMMANDS, Color, RICH_COLORS
 from .board import Board
-# Piece non è direttamente usato qui, ma è utile per type hinting se si passassero pezzi singoli
-# from .pieces import Piece
+from .pieces import Piece # Import Piece per type hinting
 
 
 class UI:
@@ -24,16 +23,10 @@ class UI:
         self._white_piece_color: str = "bold white"
         self._black_piece_color: str = "bold black"
         
-        # Dimensioni visive per ogni cella della scacchiera
-        # Usare numeri dispari per un migliore centraggio di un singolo carattere
-        self._visual_cell_width: int = 6  # Larghezza di ogni cella in caratteri
-        self._visual_cell_height: int = 3 # Altezza di ogni cella in righe di testo
+        self._visual_cell_width: int = 4
+        self._visual_cell_height: int = 3
 
     def set_accent_color(self, accent_color: str):
-        """
-        Imposta il colore di accento per l'UI, se valido.
-        Altrimenti, mantiene il colore precedente e stampa un messaggio.
-        """
         if accent_color in RICH_COLORS:
             self._accent_color = accent_color
         else:
@@ -41,107 +34,114 @@ class UI:
                    f"Il colore di accento rimane '{self._accent_color}'.")
 
     def get_accent_color(self) -> str:
-        """Restituisce il colore di accento corrente."""
         return self._accent_color
 
     def display_welcome_message(self):
-        """Mostra il messaggio di benvenuto."""
         rprint(Panel(f"Benvenuto in [bold {self._accent_color}]Scacchi[/bold {self._accent_color}]!",
                      title="Scacchi Terminal Edition", border_style=self._accent_color))
         self.display_help_suggestion()
 
     def display_help_suggestion(self):
-        """Suggerisce il comando /help."""
-        rprint(f"Digita [bold cyan]/help[/bold cyan] per vedere i comandi disponibili.")
+        rprint("Digita [bold cyan]/help[/bold cyan] per vedere i comandi disponibili.")
 
+    def _create_multiline_text_block(self,
+                                     center_line_content: str,
+                                     block_width: int,
+                                     padding_top: int,
+                                     padding_bottom: int) -> str:
+        """
+        Helper per creare un blocco di testo multilinea con contenuto centrato verticalmente.
+        `center_line_content` dovrebbe già essere formattato alla larghezza `block_width`.
+        """
+        lines = []
+        empty_padding_line = " " * block_width
+        for _ in range(padding_top):
+            lines.append(empty_padding_line)
+        lines.append(center_line_content)
+        for _ in range(padding_bottom):
+            lines.append(empty_padding_line)
+        return "\n".join(lines)
+
+    def _get_cell_symbol_and_style(self,
+                                   piece: Optional[Piece],
+                                   is_white_square: bool
+                                   ) -> Tuple[str, str]:
+        """Restituisce il simbolo del pezzo (o spazio) e lo stile Rich per una cella."""
+        symbol = piece.get_symbol() if piece else " "
+        
+        bg_color = self._white_square_color if is_white_square else self._black_square_color
+        
+        style: str
+        if piece:
+            fg_color = self._white_piece_color if piece.color == Color.WHITE else self._black_piece_color
+            style = f"{fg_color} on {bg_color}"
+        else:
+            style = f"on {bg_color}"
+        return symbol, style
 
     def display_board(self, board: Board, current_player: Optional[Color] = None):
-        """
-        Mostra la scacchiera usando Rich, con celle visivamente più grandi.
-        """
+        """Mostra la scacchiera usando Rich, con celle visivamente più grandi."""
         table = Table.grid(expand=False)
 
-        # Calcola il padding verticale per centrare il contenuto nelle celle alte _visual_cell_height
         padding_vertical_top = (self._visual_cell_height - 1) // 2
         padding_vertical_bottom = self._visual_cell_height - 1 - padding_vertical_top
         
-        empty_line_for_cell = " " * self._visual_cell_width
+        row_label_display_width = 2  # Larghezza per etichette di riga "8 ", "1 "
 
-        # --- INTESTAZIONI COLONNE (a-h) ---
-        column_header_items = []
-        # Angolo superiore sinistro (vuoto, per allineare le etichette di riga)
-        top_left_corner_text_parts = ["  " * self._visual_cell_height] # 2 spazi di larghezza
-        column_header_items.append(
-            Text("\n".join(["  "] * self._visual_cell_height), style="dim")
+        # --- RIGA DI INTESTAZIONE (ETICHETTE COLONNE E ANGOLO) ---
+        header_row_elements = []
+
+        # Angolo superiore sinistro
+        empty_corner_center_line = " " * row_label_display_width
+        corner_block_text = self._create_multiline_text_block(
+            empty_corner_center_line, row_label_display_width,
+            padding_vertical_top, padding_vertical_bottom
         )
+        header_row_elements.append(Text(corner_block_text, style="dim"))
 
-
+        # Etichette Colonne (a-h)
         for c_idx in range(BOARD_SIZE):
             col_char = IDX_TO_COL[c_idx]
-            col_label_line_content = f"{col_char:^{self._visual_cell_width}}" # Lettera centrata
-            
-            current_col_label_text_parts = []
-            for _ in range(padding_vertical_top):
-                current_col_label_text_parts.append(empty_line_for_cell)
-            current_col_label_text_parts.append(col_label_line_content)
-            for _ in range(padding_vertical_bottom):
-                current_col_label_text_parts.append(empty_line_for_cell)
-            
-            column_header_items.append(Text("\n".join(current_col_label_text_parts), style="dim"))
-        table.add_row(*column_header_items)
+            col_label_center_line = f"{col_char:^{self._visual_cell_width}}"
+            col_block_text = self._create_multiline_text_block(
+                col_label_center_line, self._visual_cell_width,
+                padding_vertical_top, padding_vertical_bottom
+            )
+            header_row_elements.append(Text(col_block_text, style="dim"))
+        table.add_row(*header_row_elements)
 
-        # --- RIGHE DELLA SCACCHIERA (8 a 1) ---
+        # --- RIGHE DELLA SCACCHIERA (da 8 in alto a 1 in basso) ---
         for r_idx in range(BOARD_SIZE - 1, -1, -1):
-            row_render_elements = []
+            current_board_row_elements = []
 
-            # Etichetta riga (numero) - centrata verticalmente
+            # Etichetta Riga (numero)
             row_label_char = str(r_idx + 1)
-            # Larghezza etichetta riga (es. 2 caratteri: "8 ")
-            row_label_width = 2 
-            empty_row_label_line = " " * row_label_width
-            row_label_content_line = f"{row_label_char:<{row_label_width}}" # Numero allineato a sx
-
-            row_label_text_parts = []
-            for _ in range(padding_vertical_top):
-                row_label_text_parts.append(empty_row_label_line)
-            row_label_text_parts.append(row_label_content_line)
-            for _ in range(padding_vertical_bottom):
-                row_label_text_parts.append(empty_row_label_line)
-            
-            row_render_elements.append(Text("\n".join(row_label_text_parts), style="dim"))
+            row_label_center_line = f"{row_label_char:<{row_label_display_width}}"
+            row_label_block_text = self._create_multiline_text_block(
+                row_label_center_line, row_label_display_width,
+                padding_vertical_top, padding_vertical_bottom
+            )
+            current_board_row_elements.append(Text(row_label_block_text, style="dim"))
 
             # Caselle della scacchiera per questa riga
             for c_idx in range(BOARD_SIZE):
-                piece = board.get_piece((r_idx, c_idx))
-                is_white_square = (r_idx + c_idx) % 2 != 0
-
-                square_bg_color = self._white_square_color if is_white_square else self._black_square_color
-                piece_symbol_on_board = piece.get_symbol() if piece else " "
+                current_piece = board.get_piece((r_idx, c_idx))
+                is_current_square_white = (r_idx + c_idx) % 2 != 0
                 
-                # Stile del pezzo (colore) e sfondo della casella
-                current_cell_style = ""
-                if piece:
-                    piece_fg_color = self._white_piece_color if piece.color == Color.WHITE else self._black_piece_color
-                    current_cell_style = f"{piece_fg_color} on {square_bg_color}"
-                else:
-                    current_cell_style = f"on {square_bg_color}"
+                piece_symbol, cell_style = self._get_cell_symbol_and_style(
+                    current_piece, is_current_square_white
+                )
 
-                # Costruzione del contenuto multilinea della cella
-                cell_text_lines = []
-                # Linea con il pezzo (o spazio), centrato orizzontalmente
-                line_with_piece_content = f"{piece_symbol_on_board:^{self._visual_cell_width}}"
-
-                for _ in range(padding_vertical_top):
-                    cell_text_lines.append(empty_line_for_cell)
-                cell_text_lines.append(line_with_piece_content)
-                for _ in range(padding_vertical_bottom):
-                    cell_text_lines.append(empty_line_for_cell)
-                
-                cell_final_text_block = "\n".join(cell_text_lines)
-                row_render_elements.append(Text(cell_final_text_block, style=current_cell_style))
+                cell_center_line = f"{piece_symbol:^{self._visual_cell_width}}"
+                cell_block_text = self._create_multiline_text_block(
+                    cell_center_line, self._visual_cell_width,
+                    padding_vertical_top, padding_vertical_bottom
+                )
+                current_board_row_elements.append(Text(cell_block_text, style=cell_style))
             
-            table.add_row(*row_render_elements)
+            table.add_row(*current_board_row_elements)
 
+        # Titolo del pannello
         title_text = "Scacchiera"
         if current_player:
             player_name_cap = current_player.name.capitalize()
@@ -149,9 +149,7 @@ class UI:
         
         rprint(Panel(table, title=title_text, border_style=self._accent_color, padding=(0,1)))
 
-
     def display_help(self):
-        """Mostra l'elenco dei comandi disponibili."""
         help_text_content = Text()
         help_text_content.append("Comandi disponibili:\n\n", style="bold")
         for command, description in COMMANDS.items():
@@ -161,7 +159,6 @@ class UI:
         rprint(Panel(help_text_content, title="Aiuto", border_style=self.get_accent_color()))
 
     def display_message(self, message: str, level: str = "info"):
-        """Mostra un messaggio all'utente con un livello di enfasi."""
         color_map = {
             "info": self.get_accent_color(), "error": "red",
             "warning": "yellow", "success": "green",
@@ -178,18 +175,17 @@ class UI:
         else: 
             rprint(f"[{selected_color}]{message}[/{selected_color}]")
 
-
     def get_confirmation(self, prompt: str) -> bool:
-        """Chiede conferma all'utente (sì/no)."""
         while True:
             rprint(f"[bold {self.get_accent_color()}]{prompt} (s/n):[/bold {self.get_accent_color()}] ", end="")
             response = input().lower().strip()
-            if response in ['s', 'si', 'sì']: return True
-            if response in ['n', 'no']: return False
+            if response in ['s', 'si', 'sì']:
+                return True
+            if response in ['n', 'no']: 
+                return False
             self.display_message("Risposta non valida. Per favore inserisci 's' o 'n'.", level="warning")
 
     def display_moves(self, move_history: List[str]):
-         """Mostra la cronologia delle mosse."""
          if not move_history:
              self.display_message("Nessuna mossa è stata ancora giocata.", level="info")
              return
@@ -205,6 +201,5 @@ class UI:
          rprint(Panel(move_panel_content, title="Mosse Giocate", border_style=self.get_accent_color()))
 
     def get_user_input(self, prompt: str = "Inserisci comando o mossa") -> str:
-        """Ottiene l'input dall'utente, visualizzando il prompt con stile."""
         rprint(f"[{self.get_accent_color()}]{prompt}[/{self.get_accent_color()}]", end="")
         return input().strip()
