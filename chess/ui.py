@@ -23,7 +23,7 @@ class UI:
         self._white_piece_color: str = "bold white"
         self._black_piece_color: str = "bold black"
         
-        self._visual_cell_width: int = 4
+        self._visual_cell_width: int = 6
         self._visual_cell_height: int = 3
 
     def set_accent_color(self, accent_color: str):
